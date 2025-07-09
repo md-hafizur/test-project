@@ -39,3 +39,8 @@ class SessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Session
         fields = "__all__"
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']

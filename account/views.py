@@ -11,17 +11,18 @@ from django.contrib.auth import get_user_model
 from .serializers import (
     UserRegistrationSerializer,
     UserSerializer,
+    UserUpdateSerializer,
 )
 
 User = get_user_model()
 
-class UserRegistrationView(APIView):
+class UserRegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        serializer = UserRegistrationSerializer(data=request.data)
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response({
@@ -76,3 +77,23 @@ class login(APIView):
             }
             return Response(response)
         return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return UserUpdateSerializer
+        return UserSerializer
+
+    def get_object(self):
+        return self.request.user if self.kwargs.get('pk') == 'me' else super().get_object()
+
+    def update(self, request, *args, **kwargs):
+        partial = True  # 👈 Force partial update for both PUT and PATCH
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
