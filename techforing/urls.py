@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from comments.views import CommentDetailView
 from project.views import TaskDetailView
 
 urlpatterns = [
@@ -25,4 +26,6 @@ urlpatterns = [
     path('api/projects/', include('project.urls')),
     path('api/projects/<int:project_pk>/tasks/', include('project.task_urls')),
     path('api/tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),
+    path('api/tasks/<int:task_id>/comments/', include('comments.urls')),
+    path('api/comments/<int:pk>/', CommentDetailView.as_view(), name='comment-detail'),
 ]

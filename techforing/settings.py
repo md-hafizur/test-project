@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',  # Django REST Framework
     'account',  # Custom user app
     'project',  # Project app
+    'comments',  # Comments app
 ]
 
 MIDDLEWARE = [
