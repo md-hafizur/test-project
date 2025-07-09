@@ -17,8 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from project.views import TaskDetailView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('account.urls')),
     path('api/projects/', include('project.urls')),
+    path('api/projects/<int:project_pk>/tasks/', include('project.task_urls')),
+    path('api/tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),
 ]
