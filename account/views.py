@@ -13,6 +13,8 @@ from .serializers import (
     UserSerializer,
     UserUpdateSerializer,
 )
+from rest_framework.permissions import IsAuthenticated
+from authentication.auth import JWTAuthentication
 
 User = get_user_model()
 
@@ -81,6 +83,10 @@ class login(APIView):
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'PATCH']:

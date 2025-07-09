@@ -30,7 +30,6 @@ class Session(models.Model):
     access_token = models.TextField(blank=True, null=True)
     refresh_token = models.TextField(blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sessions")
-    visitor_id = models.CharField(max_length=100)
     ip = models.GenericIPAddressField()
     user_agent = models.TextField()
     remember = models.BooleanField(default=False)
