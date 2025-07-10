@@ -6,6 +6,8 @@ from project.models import Task
 from rest_framework.permissions import IsAuthenticated
 from authentication.auth import JWTAuthentication
 from rest_framework.response import Response
+# import Q
+from django.db.models import Q
 class CommentListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -21,8 +23,7 @@ class CommentListCreateView(generics.ListCreateAPIView):
         
         # Check if user has access to the task
         task = Task.objects.filter(
-            id=task_id,
-            project__members__user=user
+             Q(id=task_id) & (Q(project__members__user=user) | Q(project__owner=user))
         ).first()
         
         if not task:
@@ -42,7 +43,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         user = self.request.user
         return Comment.objects.filter(
-            task__project__members__user=user
+            Q(task__project__members__user=user) | Q(task__project__owner=user)
         ).select_related('user', 'task')
     
     def update(self, request, *args, **kwargs):

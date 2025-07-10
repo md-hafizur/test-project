@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Project, ProjectMember, Task
 from account.serializers import UserSerializer
+from account.models import User
+from rest_framework.exceptions import ValidationError
 
 class ProjectMemberSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
@@ -26,6 +28,28 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['owner'] = self.context['request'].user
         project = Project.objects.create(**validated_data)
+
+        members = self.context['request'].data.get('members', [])
+        for member in members:
+            user_id = member.get('user_id')
+            role = member.get('role')
+
+            if not User.objects.filter(id=user_id).exists():
+                raise ValidationError(f"User with id {user_id} does not exist")
+
+            ProjectMember.objects.create(
+                user_id=user_id,
+                project=project,
+                role=role
+            )
+
+
+        # Add owner as admin member
+        ProjectMember.objects.create(
+            project=project,
+            user=project.owner,
+            role='Admin'
+        )
         
         return project
 
